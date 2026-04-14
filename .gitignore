@@ -1,0 +1,35 @@
+# Environment
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Auto-generated config stubs
+*.pyi
+
+# Alembic — ignore pycache but keep migration files
+alembic/versions/__pycache__/
+!alembic/versions/*.py
+
+# Logs
+*.log
+logs/
