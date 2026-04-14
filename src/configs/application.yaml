@@ -1,0 +1,41 @@
+# ============================================================
+# Application Configuration
+# ============================================================
+# Format: "${ENV_VAR:default} | type"
+# Required: "${ENV_VAR} | type | required"
+# Static:   "value | type"
+# Types:    str, int, float, bool, list
+
+application:
+  name: "${APP_NAME:MyApp} | str"
+  version: "${APP_VERSION:0.1.0} | str"
+  debug: "${DEBUG:false} | bool"
+  environment: "${ENVIRONMENT:development} | str"
+
+database:
+  url: "${DATABASE_URL} | str | required"
+  pool_size: "${DB_POOL_SIZE:5} | int"
+  max_overflow: "${DB_MAX_OVERFLOW:10} | int"
+  pool_timeout: "${DB_POOL_TIMEOUT:30} | int"
+  echo: "${DB_ECHO:false} | bool"
+  pool_pre_ping: "true | bool"
+  pool_recycle: "1800 | int"
+
+security:
+  jwt:
+    secret_key: "${JWT_SECRET_KEY} | str | required"
+    algorithm: "${JWT_ALGORITHM:HS256} | str"
+    access_token_expire_minutes: "${ACCESS_TOKEN_EXPIRE_MINUTES:30} | int"
+    refresh_token_expire_days: "${REFRESH_TOKEN_EXPIRE_DAYS:7} | int"
+
+server:
+  cors:
+    origins: "${CORS_ORIGINS:*} | list"
+    allow_credentials: "${CORS_ALLOW_CREDENTIALS:true} | bool"
+    allow_methods: "${CORS_ALLOW_METHODS:*} | list"
+    allow_headers: "${CORS_ALLOW_HEADERS:*} | list"
+
+logging:
+  level: "${LOG_LEVEL:INFO} | str"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s | str"
+  file_path: "${LOG_FILE_PATH:logs/app.log} | str"
