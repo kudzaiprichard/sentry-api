@@ -23,12 +23,22 @@ build/
 .DS_Store
 Thumbs.db
 
+# Claude
+.claude/
+
 # Auto-generated config stubs
 *.pyi
 
 # Alembic — ignore pycache but keep migration files
 alembic/versions/__pycache__/
 !alembic/versions/*.py
+
+# Model artifacts
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.onnx
 
 # Logs
 *.log
