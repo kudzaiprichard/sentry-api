@@ -9,9 +9,8 @@ from src.configs import database
 from src.shared.database.base_model import Base
 
 # Import your models here so Alembic can detect them
-# Example:
-#   from src.modules.users.domain.models.user import User
-#   from src.modules.posts.domain.models.post import Post
+from src.modules.auth.domain.models.user import User  # noqa: F401
+from src.modules.auth.domain.models.token import Token  # noqa: F401
 
 
 config = context.config
