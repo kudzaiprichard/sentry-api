@@ -3,6 +3,7 @@ from src.configs import application
 from src.core.lifespan import lifespan
 from src.core.middleware import register_middleware
 from src.shared.exceptions.error_handlers import register_error_handlers
+from src.modules.auth import auth_router, user_router
 
 
 def create_app() -> FastAPI:
@@ -21,5 +22,5 @@ def create_app() -> FastAPI:
 
 
 def _register_routers(app: FastAPI) -> None:
-    # Register your domain routers here
-    pass
+    app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
+    app.include_router(user_router, prefix="/api/v1/users", tags=["Users"])

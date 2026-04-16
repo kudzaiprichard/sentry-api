@@ -1,9 +1,11 @@
+import asyncio
 import os
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from src.shared.database.engine import engine
 from src.configs import logging as log_config
+from src.modules.auth.internal import seed_admin, start_token_cleanup
 
 
 logger = logging.getLogger(__name__)
@@ -33,8 +35,18 @@ async def lifespan(app: FastAPI):
     _setup_logging()
     logger.info("Starting up — logging configured, DB pool initialised")
 
+    await seed_admin()
+
+    token_cleanup_task = asyncio.create_task(start_token_cleanup())
+
     yield
 
     # ── Shutdown ──
+    token_cleanup_task.cancel()
+    try:
+        await token_cleanup_task
+    except asyncio.CancelledError:
+        pass
+
     await engine.dispose()
     logger.info("Shutting down — DB pool disposed")

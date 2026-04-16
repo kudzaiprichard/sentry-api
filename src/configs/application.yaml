@@ -27,6 +27,13 @@ security:
     algorithm: "${JWT_ALGORITHM:HS256} | str"
     access_token_expire_minutes: "${ACCESS_TOKEN_EXPIRE_MINUTES:30} | int"
     refresh_token_expire_days: "${REFRESH_TOKEN_EXPIRE_DAYS:7} | int"
+  admin:
+    email: "${ADMIN_EMAIL:admin@sentry.local} | str"
+    username: "${ADMIN_USERNAME:admin} | str"
+    first_name: "${ADMIN_FIRST_NAME:System} | str"
+    last_name: "${ADMIN_LAST_NAME:Admin} | str"
+    password: "${ADMIN_PASSWORD} | str | required"
+  token_cleanup_interval_seconds: "${TOKEN_CLEANUP_INTERVAL_SECONDS:3600} | int"
 
 server:
   cors:
