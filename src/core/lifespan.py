@@ -5,7 +5,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from src.shared.database.engine import engine
 from src.configs import logging as log_config
+from src.core.extension_pipeline_submitter import InferencePipelineSubmitter
+from src.core.inference_detector import InferenceClassificationDetector
 from src.modules.auth.internal import seed_admin, start_token_cleanup
+from src.modules.extension.internal import start_extension_token_cleanup
+from src.modules.inference.internal import pipeline_runner as inference_runner
 
 
 logger = logging.getLogger(__name__)
@@ -37,16 +41,26 @@ async def lifespan(app: FastAPI):
 
     await seed_admin()
 
+    app.state.detector = InferenceClassificationDetector()
+    app.state.pipeline_submitter = InferencePipelineSubmitter()
+    logger.info("Detector wired — extension /emails/analyze is live")
+
     token_cleanup_task = asyncio.create_task(start_token_cleanup())
+    extension_token_cleanup_task = asyncio.create_task(
+        start_extension_token_cleanup()
+    )
 
     yield
 
     # ── Shutdown ──
-    token_cleanup_task.cancel()
-    try:
-        await token_cleanup_task
-    except asyncio.CancelledError:
-        pass
+    for task in (token_cleanup_task, extension_token_cleanup_task):
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+    await inference_runner.drain(timeout=30.0)
 
     await engine.dispose()
     logger.info("Shutting down — DB pool disposed")
