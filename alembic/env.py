@@ -11,6 +11,12 @@ from src.shared.database.base_model import Base
 # Import your models here so Alembic can detect them
 from src.modules.auth.domain.models.user import User  # noqa: F401
 from src.modules.auth.domain.models.token import Token  # noqa: F401
+from src.modules.inference.domain.models.email import Email  # noqa: F401
+from src.modules.inference.domain.models.link import Link  # noqa: F401
+from src.modules.inference.domain.models.page_analysis import PageAnalysis  # noqa: F401
+from src.modules.extension.domain.models.extension_install import ExtensionInstall  # noqa: F401
+from src.modules.extension.domain.models.extension_token import ExtensionToken  # noqa: F401
+from src.modules.extension.domain.models.extension_analyse_event import ExtensionAnalyseEvent  # noqa: F401
 
 
 config = context.config
