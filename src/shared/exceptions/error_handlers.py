@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
+from slowapi.errors import RateLimitExceeded
 
 from src.shared.responses.api_response import ApiResponse, ErrorDetail
 from src.shared.exceptions.exceptions import AppException
@@ -49,6 +50,14 @@ def register_error_handlers(app: FastAPI) -> None:
             message="Please check your input and try again",
         )
         return JSONResponse(status_code=400, content=response.model_dump(exclude_none=True, by_alias=True))
+
+    @app.exception_handler(RateLimitExceeded)
+    async def handle_rate_limit_exceeded(req: Request, exc: RateLimitExceeded):
+        # Route through the StarletteHTTPException handler so the envelope
+        # matches every other failure — code="RATE_LIMITED" is derived from
+        # the detail string ("Rate Limited" → "RATE_LIMITED").
+        http_exc = StarletteHTTPException(status_code=429, detail="Rate Limited")
+        return await handle_http_exception(req, http_exc)
 
     @app.exception_handler(StarletteHTTPException)
     async def handle_http_exception(req: Request, exc: StarletteHTTPException):

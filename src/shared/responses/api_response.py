@@ -15,13 +15,25 @@ class ErrorDetail(BaseModel):
     title: str
     code: str
     status: int
-    details: Optional[List[str]] = Field(default=None, exclude_none=True)
+    details: Optional[List[str]] = Field(default=None, exclude=True)
     field_errors: Optional[Dict[str, List[str]]] = Field(
-        default=None, exclude_none=True, alias="fieldErrors"
+        default=None, alias="fieldErrors"
     )
 
-    class Config:
-        populate_by_name = True
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {},
+    }
+
+    def model_dump(self, **kwargs):
+        kwargs.setdefault("exclude_none", True)
+        kwargs.setdefault("by_alias", True)
+        return super().model_dump(**kwargs)
+
+    def model_dump_json(self, **kwargs):
+        kwargs.setdefault("exclude_none", True)
+        kwargs.setdefault("by_alias", True)
+        return super().model_dump_json(**kwargs)
 
     class Builder:
         def __init__(self, title: str, code: str, status: int):
@@ -73,8 +85,17 @@ class ApiResponse(BaseModel, Generic[T]):
     value: Optional[T] = None
     error: Optional[ErrorDetail] = None
 
-    class Config:
-        json_encoders = {None: lambda _: None}
+    model_config = {"populate_by_name": True}
+
+    def model_dump(self, **kwargs):
+        kwargs.setdefault("exclude_none", True)
+        kwargs.setdefault("by_alias", True)
+        return super().model_dump(**kwargs)
+
+    def model_dump_json(self, **kwargs):
+        kwargs.setdefault("exclude_none", True)
+        kwargs.setdefault("by_alias", True)
+        return super().model_dump_json(**kwargs)
 
     @model_validator(mode="after")
     def validate_exclusive(self):
@@ -87,7 +108,7 @@ class ApiResponse(BaseModel, Generic[T]):
         return ApiResponse(success=True, message=message, value=value)
 
     @staticmethod
-    def failure(error: ErrorDetail, message: Optional[str] = None) -> ApiResponse[T]:
+    def failure(error: ErrorDetail, message: Optional[str] = None) -> ApiResponse[None]:
         return ApiResponse(success=False, message=message, error=error)
 
 
@@ -99,25 +120,31 @@ class PaginationInfo(BaseModel):
     page: int
     total: int
     page_size: int = Field(alias="pageSize")
-    total_pages: int = Field(alias="totalPages")
+    total_pages: int = Field(default=0, alias="totalPages")
 
-    class Config:
-        populate_by_name = True
+    model_config = {"populate_by_name": True}
 
-    @model_validator(mode="before")
-    @classmethod
-    def compute_total_pages(cls, values):
-        page_size = values.get("pageSize") or values.get("page_size")
-        total = values.get("total", 0)
-        if page_size is not None and page_size <= 0:
+    @model_validator(mode="after")
+    def compute_total_pages(self):
+        if self.page_size <= 0:
             raise ValueError("Page size must be greater than 0")
-        if page_size and "totalPages" not in values and "total_pages" not in values:
-            values["totalPages"] = ceil(total / page_size)
-        return values
+        if self.total_pages == 0:
+            self.total_pages = ceil(self.total / self.page_size)
+        return self
 
 
 class PaginatedResponse(ApiResponse[List[T]], Generic[T]):
     pagination: Optional[PaginationInfo] = None
+
+    def model_dump(self, **kwargs):
+        kwargs.setdefault("exclude_none", True)
+        kwargs.setdefault("by_alias", True)
+        return super().model_dump(**kwargs)
+
+    def model_dump_json(self, **kwargs):
+        kwargs.setdefault("exclude_none", True)
+        kwargs.setdefault("by_alias", True)
+        return super().model_dump_json(**kwargs)
 
     @staticmethod
     def ok(

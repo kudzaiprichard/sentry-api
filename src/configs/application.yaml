@@ -34,15 +34,54 @@ security:
     last_name: "${ADMIN_LAST_NAME:Admin} | str"
     password: "${ADMIN_PASSWORD} | str | required"
   token_cleanup_interval_seconds: "${TOKEN_CLEANUP_INTERVAL_SECONDS:3600} | int"
+  extension_token_expire_days: "${EXTENSION_TOKEN_EXPIRE_DAYS:30} | int"
+  extension_token_cleanup_interval_seconds: "${EXTENSION_TOKEN_CLEANUP_INTERVAL_SECONDS:3600} | int"
 
 server:
   cors:
-    origins: "${CORS_ORIGINS:*} | list"
+    origins: "${CORS_ORIGINS:} | list"
     allow_credentials: "${CORS_ALLOW_CREDENTIALS:true} | bool"
     allow_methods: "${CORS_ALLOW_METHODS:*} | list"
     allow_headers: "${CORS_ALLOW_HEADERS:*} | list"
+    origin_regex: "${CORS_ORIGIN_REGEX:^chrome-extension://[A-Za-z0-9_-]+$} | str"
+  rate_limit:
+    extension_register: "${RATE_LIMIT_EXTENSION_REGISTER:3/minute} | str"
+    extension_renew: "${RATE_LIMIT_EXTENSION_RENEW:10/minute} | str"
+    extension_predict: "${RATE_LIMIT_EXTENSION_PREDICT:60/minute} | str"
+
+extension:
+  cors_origins: "${EXTENSION_CORS_ORIGINS:} | list"
+  allowlist_domains: "${EXTENSION_ALLOWLIST_DOMAINS:} | list"
+  allowlist_emails: "${EXTENSION_ALLOWLIST_EMAILS:} | list"
+  blocklist_domains: "${EXTENSION_BLOCKLIST_DOMAINS:} | list"
+  blocklist_emails: "${EXTENSION_BLOCKLIST_EMAILS:} | list"
+  google_oauth:
+    client_id: "${EXTENSION_GOOGLE_OAUTH_CLIENT_ID:} | str"
 
 logging:
   level: "${LOG_LEVEL:INFO} | str"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s | str"
   file_path: "${LOG_FILE_PATH:logs/app.log} | str"
+
+inference:
+  groq:
+    api_key: "${GROQ_API_KEY} | str | required"
+    model: "${GROQ_MODEL:llama-3.1-8b-instant} | str"
+    timeout_seconds: "${GROQ_TIMEOUT_SECONDS:30} | int"
+  gemini:
+    api_key: "${GEMINI_API_KEY} | str | required"
+    model: "${GEMINI_MODEL:gemini-1.5-flash} | str"
+    timeout_seconds: "${GEMINI_TIMEOUT_SECONDS:60} | int"
+  scraping:
+    attempt_1_timeout: "${SCRAPE_ATTEMPT_1_TIMEOUT:5} | int"
+    attempt_2_timeout: "${SCRAPE_ATTEMPT_2_TIMEOUT:8} | int"
+    attempt_3_timeout: "${SCRAPE_ATTEMPT_3_TIMEOUT:15} | int"
+    user_agent: "${SCRAPE_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36} | str"
+    content_char_cap: "${SCRAPE_CONTENT_CHAR_CAP:1000} | int"
+  pipeline:
+    early_exit_confidence: "${EARLY_EXIT_CONFIDENCE:0.85} | float"
+    batch_max_size: "${INFERENCE_BATCH_MAX:50} | int"
+    max_concurrent_link_tasks: "${INFERENCE_MAX_CONCURRENCY:10} | int"
+  alert_threshold: "${INFERENCE_ALERT_THRESHOLD:0.90} | float"
+  emails:
+    max_body_bytes: "${INFERENCE_EMAILS_MAX_BODY_BYTES:102400} | int"
