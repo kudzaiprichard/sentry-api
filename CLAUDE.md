@@ -4,9 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-All commands assume the project venv is active (`venv\Scripts\activate` on Windows, `source venv/bin/activate` on POSIX). There is no `requirements.txt` or `pyproject.toml` — dependencies are installed ad-hoc into `venv/`.
+All commands assume the project venv is active (`venv\Scripts\activate` on Windows, `source venv/bin/activate` on POSIX). Dependencies are pinned in `requirements.txt`; there is no `pyproject.toml`.
 
 ```bash
+# Install / sync dependencies into the active venv
+pip install -r requirements.txt
+
 # Run the dev server (factory + reload)
 python main.py
 
