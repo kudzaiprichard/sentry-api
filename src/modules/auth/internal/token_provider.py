@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import jwt
 
@@ -25,6 +25,7 @@ def _build_payload(
     payload = {
         "sub": str(user_id),
         "type": token_type,
+        "jti": uuid4().hex,
         "iat": now,
         "exp": now + expires_delta,
     }
